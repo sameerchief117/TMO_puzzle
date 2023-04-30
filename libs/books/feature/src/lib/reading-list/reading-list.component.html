@@ -14,10 +14,21 @@
         mat-icon-button
         color="warn"
         [attr.aria-label]="'Remove ' + b.title + ' from reading list'"
-        (click)="removeFromReadingList(b)"
+        (click)="removeFromReadingList(b); updateList(b)"
       >
         <mat-icon>remove_circle</mat-icon>
       </button>
+    </div>
+    <div>
+      <button
+        mat-stroked-button
+        color="accent"
+        (click)="updateList(b)"
+        [disabled]="b.finished"
+      >
+        {{ b.finished == true ? 'Finished' : 'Mark as Finished?' }}
+      </button>
+      <p class="data-para" *ngIf="b.finishedDate !=null"> Finished On - {{b.finishedDate | date}}</p>
     </div>
   </div>
 </ng-container>
