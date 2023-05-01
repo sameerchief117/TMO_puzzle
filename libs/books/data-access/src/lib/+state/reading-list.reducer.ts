@@ -55,7 +55,13 @@ const readingListReducer = createReducer(
   ),
   on(ReadingListActions.updateFromList, (state, {update}) =>
   readingListAdapter.updateOne({ id: update.bookId, changes: update}, state)
-  )
+  ),
+  on(ReadingListActions.confirmedUpdateFromList, (state, {update}) => {
+    return readingListAdapter.setAll( update,{
+      ...state,
+      loaded: true
+    });
+  }),
 );
 
 export function reducer(state: State | undefined, action: Action) {
