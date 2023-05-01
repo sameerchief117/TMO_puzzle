@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Store } from '@ngrx/store';
 import { ReadingListBook,
@@ -12,10 +12,17 @@ import { ReadingListBook,
   templateUrl: './reading-list.component.html',
   styleUrls: ['./reading-list.component.scss']
 })
-export class ReadingListComponent {
+export class ReadingListComponent implements OnInit, OnDestroy{
   readingList$ = this.store.select(getReadingList);
   books: ReadingListBook[];
+  subs : any[]=[]
   constructor(private readonly store: Store, private snackBar: MatSnackBar) {}
+
+  ngOnInit() {
+    this.subs.push(this.store.select(getAllBooks).subscribe((books) => {
+      this.books = books;
+    }))
+  }
 
   removeFromReadingList(item) {
     this.store.dispatch(removeFromReadingList({ item }));
@@ -25,12 +32,16 @@ export class ReadingListComponent {
   openSnackBar(message, action, item) {
     let snackBarRef = this.snackBar.open(message, action, {duration:2000});
 
-    snackBarRef.onAction().subscribe(() => {
-      this.store.select(getAllBooks).subscribe((books) => {
-        this.books = books;
-      });
+    this.subs.push(snackBarRef.onAction().subscribe(() => {
+      
       let book = this.books.find((books) => books.id == item.bookId);
       this.store.dispatch(addToReadingList({ book }));
-    });
+    }))
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(subscription=>{
+      subscription.unsubscribe()
+    })
   }
 }
