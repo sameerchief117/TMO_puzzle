@@ -22,7 +22,7 @@ export class ReadingListController {
   }
 
   @Put('/reading-list/:id/finished')
-  async updateFromList( @Param() params, @Body() updatedBook : ReadingListItem ){
-    return await this.readingList.updateBook(params.id,updatedBook)
+  async updateFromList( @Param() params, @Body() update : ReadingListItem ){
+    return await this.readingList.updateBook(params.id,update)
   }
 }

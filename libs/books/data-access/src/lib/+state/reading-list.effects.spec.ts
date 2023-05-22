@@ -4,7 +4,7 @@ import { provideMockActions } from '@ngrx/effects/testing';
 import { provideMockStore } from '@ngrx/store/testing';
 import { HttpTestingController } from '@angular/common/http/testing';
 
-import { SharedTestingModule } from '@tmo/shared/testing';
+import { SharedTestingModule, createReadingListItem } from '@tmo/shared/testing';
 import { ReadingListEffects } from './reading-list.effects';
 import * as ReadingListActions from './reading-list.actions';
 
@@ -40,6 +40,38 @@ describe('ToReadEffects', () => {
       });
 
       httpMock.expectOne('/api/reading-list').flush([]);
+    });
+
+    it('should mark as read', done => {
+      actions = new ReplaySubject();
+      const item = createReadingListItem('A');
+      actions.next(ReadingListActions.updateFromList({ item }));
+  
+      effects.updateBook$.subscribe(action => {
+        expect(action).toEqual(
+          ReadingListActions.confirmedUpdateFromList({
+            item
+          })
+        );
+        done();
+      });
+  
+      httpMock.expectOne('/api/reading-list/A/finished').flush(item);
+    });
+  
+    it('should use failedUpdateFromList action if updateFromList action fails', done => {
+      actions = new ReplaySubject();
+      const item = createReadingListItem('A');
+      actions.next(ReadingListActions.updateFromList({ item }));
+  
+      effects.updateBook$.subscribe(action => {
+        expect(action).toEqual(
+          ReadingListActions.failedUpdateFromList({ item })
+        );
+        done();
+      });
+  
+      httpMock.expectOne('/api/reading-list/A/finished').error(new ErrorEvent('Error'));
     });
   });
 });

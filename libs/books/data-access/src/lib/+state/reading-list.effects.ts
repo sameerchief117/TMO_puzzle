@@ -59,8 +59,8 @@ export class ReadingListEffects implements OnInitEffects {
     ofType(ReadingListActions.updateFromList),
     concatMap(({ update })=>
       this.http.put<ReadingListItem>(`/api/reading-list/${update.bookId}/finished`,update).pipe(
-        map(()=>
-          ReadingListActions.confirmedUpdateFromList({ update })
+        map(( updatedList: ReadingListItem)=>
+          ReadingListActions.confirmedUpdateFromList({ update : updatedList })
         ),
         catchError(() =>
         of(ReadingListActions.failedUpdateFromList({ update }))
